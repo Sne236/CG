@@ -1,0 +1,134 @@
+#include<stdio.h>
+#include<GL/glut.h>
+#include<stdlib.h>
+int x,y;
+int xa,ya,xb,yb;
+float bcol[3]=  {0,0,1};
+float fcol[3]= {1,0,0} ;
+void Bline(int xa,int ya,int xb,int yb){
+	int dx,dy,d;
+	int c,r,f;
+	dx=xb-xa;
+	dy=yb-ya;
+	if(abs(dx)>abs(dy)){
+		d=d+2*abs(dy)-abs(dx);
+		if(dx>0){
+			c=xa;
+			r=ya;
+			f=xb;
+		}
+		else{
+			c=xb;
+			r=yb;
+			f=xa;
+		}
+		while(f>c){
+			if(d<0){
+				c=c+1;
+				d=d+2*abs(dy);
+			}
+			else{
+				c=c+1;
+				if(dx>0 && dy>0 || dx<0 && dy<0){
+					r=r+1;
+				}
+				else{
+					r=r-1;
+				}
+				d=d+2*abs(dy)-2*abs(dx);
+			}
+			glVertex2d(c,r);
+		}
+	}
+	else{
+		d=d+2*abs(dx)-abs(dy);
+		if(dy>0){
+			c=xa;
+			r=ya;
+			f=yb;
+		}
+		else{
+			c=xb;
+			r=yb;
+			f=ya;
+		}
+		while(f>r){
+			if(d<0){
+				r=r+1;
+				d=d+2*abs(dx);
+			}
+			else{
+				r=r+1;
+				if(dx>0 && dy>0 || dx<0 && dy<0){
+					c=c+1;
+				}
+				else{
+					c=c-1;
+				}
+				d=d+2*abs(dx)-2*abs(dy);
+			}
+			glVertex2d(c,r);
+		}
+	}
+	
+	
+}
+
+ void boundary(float x,float y,float bcol[3],float fcol[3]){
+	float current[3];
+	glReadPixels(x,y,1.0,1.0,GL_RGB,GL_FLOAT,current);
+	if((current[0]!=bcol[0]||current[1]!=bcol[1]||current[2]!=bcol[2])&&(current[0]!=fcol[0]||current[1]!=fcol[1]||current[2]!=fcol[2])){
+		glColor3f(fcol[0],fcol[1],fcol[2]);
+		glBegin(GL_POINTS);
+		glVertex2d(x,y);
+		glEnd();
+		glFlush();
+		
+		boundary(x+1,y,bcol,fcol);
+		boundary(x-1,y,bcol,fcol);
+		boundary(x,y+1,bcol,fcol);
+		boundary(x,y-1,bcol,fcol);
+	}
+}
+
+void drawSquare(){
+	Bline(100,100,200,100);
+	Bline(200,100,200,200);
+	Bline(200,200,100,200);
+	Bline(100,200,100,100);
+}
+
+void Draw(){
+glClear(GL_COLOR_BUFFER_BIT);
+glBegin(GL_POINTS);
+//Bline(xa,ya,xb,yb);
+
+drawSquare();
+glVertex2d(0,0);
+glEnd();
+glFlush();
+boundary(x,y,bcol,fcol);
+glColor3f(0,0,0);
+}
+
+
+
+int main(int argc,char**argv){
+/*printf("enter first coordinates:");
+scanf("%d%d",&xa,&ya);
+printf("enter second coordinates:");
+scanf("%d%d",&xb,&yb);*/
+printf("enter the points");
+scanf("%d%d",&x,&y);
+glutInit(&argc,argv);
+glutInitDisplayMode(GLUT_SINGLE|GLUT_RGB);
+glutInitWindowPosition(0,0);
+glutInitWindowSize(640,480);
+glutCreateWindow("CG");
+glClearColor(1.0,1.0,1.0,0.0);
+glColor3f(0.0,0.0,1.0);
+gluOrtho2D(0,640,0,480);
+glutDisplayFunc(Draw);
+glutMainLoop();
+return 0;
+}
