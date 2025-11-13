@@ -1,0 +1,149 @@
+#include<stdio.h>
+#include<stdlib.h>
+#include<GL/glut.h>
+int xa,ya,xb,yb;
+int x,y;
+float bcol[3]={0,0,0};
+float fcol[3]={1,0,0};
+void Bline(int xa,int ya,int xb,int yb){
+	int dx,dy,d;
+	int c,r,f;
+	dx=xb-xa;
+	dy=yb-ya;
+	if(abs(dx)>abs(dy)){
+		d=2*abs(dy)-abs(dx);
+		if(dx>0){
+			c=xa;
+			r=ya;
+			f=xb;
+		}else{
+			c=xb;
+			r=yb;
+			f=xa;
+		}
+		while(f>c){
+			if(d<0){
+				c=c+1;
+				d=d+2*abs(dy);
+			}else{
+				c=c+1;
+				if(dx>0 && dy>0 || dx<0 && dy<0){
+					r=r+1;
+				}else{
+					r=r-1;
+				}
+				d=d+2*abs(dy)-2*abs(dx);
+			}
+			glVertex2d(c,r);
+		}
+	}
+	
+	
+		else{
+		d=2*abs(dx)-abs(dy);
+		if(dy>0){
+			c=xa;
+			r=ya;
+			f=yb;
+		}else{
+			c=xb;
+			r=yb;
+			f=ya;
+		}
+		while(f>r){
+			if(d<0){
+				r=r+1;
+				d=d+2*abs(dx);
+			}else{
+				r=r+1;
+				if(dx>0 && dy>0 || dx<0 && dy<0){
+					c=c+1;
+				}else{
+					c=c-1;
+				}
+				d=d+2*abs(dx)-2*abs(dy);
+			}
+			glVertex2d(c,r);
+		}
+	}
+}
+
+int xc,yc,r;
+void Bcircle(int xc,int yc,int r){
+	int x,y,d;
+	x=0;
+	y=r;
+	d=3-2*r;
+	do{
+		glVertex2d(xc+x,yc+y);
+		glVertex2d(xc+y,yc+x);
+		glVertex2d(xc-x,yc+y);
+		glVertex2d(xc+y,yc-x);
+		glVertex2d(xc+x,yc-y);
+		glVertex2d(xc-y,yc+x);
+		glVertex2d(xc-x,yc-y);
+		glVertex2d(xc-y,yc-x);
+		if(d<0){
+			x=x+1;
+			d=d+4*x+6;
+		}else{
+			x=x+1;
+			y=y-1;
+			d=d+4*x-4*y+10;
+		}
+		glVertex2d(x,y);
+	}while(y>=x);
+}
+
+void house(){
+Bcircle(320,240,100);
+Bline(233,190,407,190);
+Bline(407,190,320,340);
+Bline(320,340,233,190);
+Bcircle(320,240,50);
+}
+
+/*void boundary(float x,float y,float bcol[3],float fcol[3]){
+	float current[3];
+	glReadPixels(x,y,1.0,1.0,GL_RGB,GL_FLOAT,current);
+	if((current[0]!=bcol[0] || current[1]!=bcol[1] ||current[2]!=bcol[2]) &&
+	 (current[0]!=fcol[0] || current[1]!=fcol[1] ||current[2]!=fcol[2])){
+	 	glColor3f(fcol[0],fcol[1],fcol[2]);
+	 	glBegin(GL_POINTS);
+	 	glVertex2d(x,y);
+	 	glEnd();
+	 	glFlush();
+	 	
+	 	boundary(x+1,y,bcol,fcol);
+	 	boundary(x-1,y,bcol,fcol);
+	 	boundary(x,y+1,bcol,fcol);
+	 	boundary(x,y-1,bcol,fcol);
+	 }
+	 
+	 
+}*/
+void draw(){
+	glClear(GL_COLOR_BUFFER_BIT);
+	glBegin(GL_POINTS);
+	house();
+	//glVertex2d(0,0);
+	glEnd();
+	glFlush();
+	//boundary(x,y,bcol,fcol);
+}
+
+int main(int argc,char**argv){
+	/*printf("enter the points");
+	scanf("%d%d",&x,&y);*/
+	glutInit(&argc,argv);
+	glutInitDisplayMode(GLUT_SINGLE|GLUT_RGB);
+	glutInitWindowSize(640,480);
+	glutInitWindowPosition(0,0);
+	glutCreateWindow("House");
+	glClearColor(1.0,1.0,1.0,0);
+	glColor3f(0,0,0);
+	gluOrtho2D(0,640,0,480);
+	glutDisplayFunc(draw);
+	glutMainLoop();
+	return 0;
+}
