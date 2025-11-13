@@ -1,0 +1,144 @@
+#include<stdio.h>
+#include<GL/glut.h>
+
+int linetype;
+int click=0;
+int xa,ya,xb,yb;
+
+void axis(){
+	glBegin(GL_LINES);
+	glVertex2d(-320,0);
+	glVertex2d(320,0);
+	glVertex2d(0,-240);
+	glVertex2d(0,240);
+	glEnd();
+}
+
+void plot(int x,int y,int count){
+	int plot=0;
+	switch(linetype){
+		case 1:
+			plot=1;
+			break;
+		case 2:
+		  if(count%3==0){
+		  	plot=1;
+		  }	
+		  break;
+		  case 3:
+		  	if((count/5)%2==0){
+		  		plot=1;
+			  }
+			  break;
+			  case 4:
+			  	if((count%10<4 )|| (count%10==6)){
+			  		plot=1;
+				  }
+				  break;
+	}
+	if(plot){
+		glVertex2d(x,y);
+	}
+}
+
+void Bline(int xa,int ya,int xb,int yb){
+	int dx,dy,d,count=0;
+	int c,r,f;
+	dx=xb-xa;
+	dy=yb-ya;
+	if(abs(dx)>abs(dy)){
+		d=2*abs(dy)-abs(dx);
+		if(dx>0){
+			c=xa;
+			r=ya;
+			f=xb;
+		}
+		else{
+			c=xb;
+			r=yb;
+			f=xa;
+		}
+		while(f>c){
+			if(d<0){
+				c=c+1;
+				d=d+2*abs(dy);
+			}
+			else{
+				c=c+1;
+				if(dx>0 && dy>0 || dx<0 && dy<0){
+					r=r+1;
+				}
+				else{
+					r=r-1;
+				}
+				d=d+2*abs(dy)-2*abs(dx);
+			}
+			plot(c,r,count++);
+		}
+	}
+	
+	else{
+		d=2*abs(dx)-abs(dy);
+		if(dy>0){
+			c=xa;
+			r=ya;
+			f=yb;
+		}
+		else{
+			c=xb;
+			r=yb;
+			f=ya;
+		}
+		while(f>r){
+			if(d<0){
+				r=r+1;
+				d=d+2*abs(dx);
+			}
+			else{
+				r=r+1;
+				if(dx>0 && dy>0 || dx<0 && dy<0){
+					c=c+1;
+				}
+				else{
+					c=c-1;
+				}
+				d=d+2*abs(dx)-2*abs(dy);
+			}
+		plot(c,r,count++);
+		}
+	}
+	
+	
+}
+
+void draw(){
+	glClear(GL_COLOR_BUFFER_BIT);
+	 axis();
+	glBegin(GL_POINTS);
+     
+      
+	Bline(xa,ya,xb,yb);
+	glEnd();
+	glFlush();
+}
+
+int main(int argc,char**argv){
+	printf("\nline type:\n1-simple \n2-dotted,\n3-dashed,\n4-dottedDashed\n");
+	printf("Enter line type (1-4):");
+	scanf("%d",&linetype);
+	printf("enter first coordinates");
+	scanf("%d%d",&xa,&ya);
+	printf("enter second coordinates");
+	scanf("%d%d",&xb,&yb);
+	glutInit(&argc,argv);
+	glutInitDisplayMode(GLUT_SINGLE|GLUT_RGB);
+	glutInitWindowSize(640,480);
+	glutInitWindowPosition(0,0);
+	glutCreateWindow("line types");
+	glClearColor(1.0,1.0,1.0,0);
+	glColor3f(0,0,0);
+	gluOrtho2D(-320,320,-240,240);
+	glutDisplayFunc(draw);
+	glutMainLoop();
+	return 0;
+}
