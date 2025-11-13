@@ -1,0 +1,299 @@
+#include <GL/glut.h>
+#include <stdio.h>
+int i,j;
+int v;
+int input[2][10];
+int xmin, ymin, xmax, ymax;
+float output[2][10];
+int m;
+
+int ROUND(float a)
+{
+ return (int)(a + 0.5);
+}
+
+ 
+void dda(int xa, int ya, int xb, int yb)
+{
+ int dx, dy, steps;
+ dx = xb - xa;
+ dy = yb - ya;
+ 
+ if(abs(dx) > abs(dy))
+ {
+  steps = abs(dx);
+ }
+ else
+ {
+  steps = abs(dy);
+ }
+ 
+ float xinc, yinc;
+ 
+ xinc = (float)(dx) / steps;
+ yinc = (float)(dy) / steps;
+ 
+ glVertex2d(xa, ya);
+ 
+ float x = xa, y = ya;
+ 
+ for( i = 0; i < steps; i++)
+ {
+  x = x + xinc;
+  y = y + yinc;
+  glVertex2d(ROUND(x), ROUND(y));
+ } 
+}
+  
+void leftclip(int xa, int ya, int xb, int yb)
+{
+
+ printf("%d\t%d\t%d\t%d\n",xa, ya, xb, yb);
+ 
+ float slope = (float)(yb - ya) / (xb - xa);
+ 
+ if(xa > xmin && xb > xmin) //in - in
+ {
+  output[0][m] = xb;
+  output[1][m] = yb;
+  m = m + 1;
+ } 
+ 
+ if(xa > xmin && xb < xmin) //in - out
+ {
+  output[0][m] = xmin;
+  output[1][m] = ya + slope * (xmin - xa);
+  m = m + 1;
+ } 
+ 
+ if(xa < xmin && xb > xmin) //out - in
+ {
+  output[0][m] = xmin;
+  output[1][m] = ya + slope * (xmin - xa);
+  output[0][m+1] = xb;
+  output[1][m+1] = yb;
+  m = m + 2;
+ } 
+   
+}
+
+void rightclip(int xa, int ya, int xb, int yb)
+{
+ printf("%d\t%d\t%d\t%d\n",xa, ya, xb, yb);
+ 
+ float slope = (float)(yb - ya) / (xb - xa);
+ 
+ if(xa < xmax && xb < xmax) //in - in
+ {
+  output[0][m] = xb;
+  output[1][m] = yb;
+  m = m + 1;
+ } 
+ 
+ if(xa < xmax && xb > xmax) //in - out
+ {
+  output[0][m] = xmax;
+  output[1][m] = ya + slope * (xmax - xa);
+  m = m + 1;
+ } 
+ 
+ if(xa > xmax && xb < xmax) //out - in
+ {
+  output[0][m] = xmax;
+  output[1][m] = ya + slope * (xmax - xa);
+  output[0][m+1] = xb;
+  output[1][m+1] = yb;
+  m = m + 2;
+ } 
+   
+}
+
+void bottomclip(int xa, int ya, int xb, int yb) {
+    float slope = (float)(xb - xa) / (yb - ya);
+    if(ya > ymin && yb > ymin) { // in-in
+        output[0][m] = xb;
+        output[1][m] = yb;
+        m=m+1;
+    } else if(ya > ymin && yb < ymin) { // in-out
+        output[1][m] = ymin;
+        output[0][m] = xa + slope * (ymin - ya);
+         m=m+1;
+    } else if(ya < ymin && yb > ymin) { // out-in
+        output[1][m] = ymin;
+        output[0][m] = xa + slope * (ymin - ya);
+        output[1][m+1] = yb;
+        output[0][m+1] = xb;
+        m=m+2;
+    }
+}
+
+void topclip(int xa, int ya, int xb, int yb) {
+    float slope = (float)(xb - xa) / (yb - ya);
+    if(ya < ymax && yb < ymax) { // in-in
+        output[0][m] = xb;
+        output[1][m] = yb;
+m=m+1;
+    } else if(ya < ymax && yb > ymax) { // in-out
+        output[1][m] = ymax;
+        output[0][m] = xa + slope * (ymax - ya);
+m=m+1;
+    } else if(ya > ymax && yb < ymax) { // out-in
+        output[1][m] = ymax;
+        output[0][m] = xa + slope * (ymax - ya);
+        output[1][m+1] = yb;
+        output[0][m+1] = xb;
+m=m+2;
+    }
+}
+
+
+void draw(){
+
+ int i = 0;
+ 
+  
+ 
+  
+ glClear(GL_COLOR_BUFFER_BIT);
+ glBegin(GL_POINTS);
+ 
+ //int i;
+ for(i = 0; i < v - 1; i++)
+ {
+  dda(input[0][i], input[1][i], input[0][i+1],input[1][i+1]);
+ }
+ dda(input[0][i], input[1][i], input[0][0],input[1][0]);
+ 
+ m = 0;
+ for(i = 0; i < v - 1; i++)
+ {
+  leftclip(input[0][i], input[1][i], input[0][i+1], input[1][i+1]);
+ }
+ leftclip(input[0][i], input[1][i], input[0][0], input[1][0]);
+ 
+  
+ for( i = 0; i < 2; i++)
+ {
+  for( j = 0; j < m; j++)
+  {
+   input[i][j] = output[i][j];
+  }
+ }
+   
+ 
+ v = m;
+ m = 0;
+ for(i = 0; i < v - 1; i++)
+ {
+  rightclip(input[0][i], input[1][i], input[0][i+1],input[1][i+1]);
+ }
+ rightclip(input[0][i], input[1][i], input[0][0],input[1][0]);
+ 
+ /*for( i = 0; i < 2; i++)
+ {
+  for( j = 0; j < m; j++)
+  {
+   printf("%f\t", output[i][j]);
+  }
+  printf("\n");
+ }  */
+for( i = 0; i < 2; i++)
+ {
+  for( j = 0; j < m; j++)
+  {
+   input[i][j] = output[i][j];
+  }
+ }
+v = m;
+ m = 0;
+ for(i = 0; i < v - 1; i++)
+ {
+  bottomclip(input[0][i], input[1][i], input[0][i+1],input[1][i+1]);
+ }
+ bottomclip(input[0][i], input[1][i], input[0][0],input[1][0]);
+for( i = 0; i < 2; i++)
+ {
+  for( j = 0; j < m; j++)
+  {
+   input[i][j] = output[i][j];
+  }
+ }
+
+v = m;
+ m = 0;
+ for(i = 0; i < v - 1; i++)
+ {
+  topclip(input[0][i], input[1][i], input[0][i+1],input[1][i+1]);
+ }
+ topclip(input[0][i], input[1][i], input[0][0],input[1][0]);
+for( i = 0; i < 2; i++)
+ {
+  for( j = 0; j < m; j++)
+  {
+   printf("%f\t", output[i][j]);
+  }
+  printf("\n");
+ }  
+
+ 
+ glColor3f(0.0,1.0,0.0);
+ dda(xmin, ymin, xmax, ymin);
+ dda(xmax, ymin, xmax, ymax);
+ dda(xmax, ymax, xmin, ymax);
+ dda(xmin, ymax, xmin, ymin);
+ 
+ glColor3f(0.0,0.0,1.0);
+ for(i = 0; i < m - 1; i++)
+ {
+  dda(output[0][i], output[1][i], output[0][i+1],output[1][i+1]);
+ }
+ dda(output[0][i], output[1][i], output[0][0],output[1][0]);
+  
+ glEnd();
+ glFlush();
+}
+
+int main (int argc, char * * argv){
+
+ printf("\nVertices:");
+ scanf("%d",&v);
+ 
+ for( i = 0; i < v; i++)
+ {
+  printf("\nx:");
+  scanf("%d",&input[0][i]);
+  printf("\ny:");
+  scanf("%d",&input[1][i]);
+ }
+ 
+ printf("\nxmin:");
+ scanf("%d",&xmin);
+ printf("\nymin");
+ scanf("%d",&ymin);
+ printf("\nxmax");
+ scanf("%d",&xmax);
+ printf("\nymax");
+ scanf("%d",&ymax);
+ 
+ /*for(int i = 0; i < 2; i++)
+ {
+  for(int j = 0; j < v; j++)
+  {
+   printf("%d\t", input[i][j]);
+  }
+  printf("\n");
+ }*/  
+  
+ 
+ glutInit(& argc, argv);
+ glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
+ glutInitWindowPosition(0, 0);
+ glutInitWindowSize(640, 480);
+ glutCreateWindow("Draw Point");
+ glClearColor(1.0, 1.0, 1.0, 0.0);
+ glColor3f(1.0,0.0,0.0);
+ gluOrtho2D(0, 640, 0, 480);
+ glutDisplayFunc(draw);
+ glutMainLoop();
+ return 0;
+}
