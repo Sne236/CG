@@ -1,0 +1,156 @@
+#include<GL/glut.h>
+#include<stdio.h>
+#include<stdlib.h>
+
+int xa,ya,xb,yb;
+
+void Bline(int xa,int ya,int xb,int yb)
+{
+		int dx,dy,d;
+		int c,r,f;
+		int i=0;
+		dx = xb - xa;
+		dy = yb - ya;
+	
+	if(abs(dx) > abs(dy))
+	{
+	
+		d = 2 * abs(dy) - abs(dx);
+		
+		if(dx>0)
+		{
+			c=xa;
+			r=ya;
+			f=xb;
+		}
+		else
+		{
+			c=xb;
+			r=yb;
+			f=xa;
+		}
+		
+		while(f > c)
+		{
+			if(d < 0)
+			{
+				c = c + 1;
+				d= d + 2 * abs(dy);
+			}
+			else
+			{
+				c = c + 1;
+				
+				if(dx > 0 && dy > 0 || dx < 0 && dy < 0)
+				{
+					r = r + 1;
+				}
+				else
+				{
+					r = r - 1;
+				}
+				d = d + 2 * abs(dy) - 2 * abs(dx);
+			}
+			if(i%3==0){
+			
+			glVertex2d(c,r);
+						
+}
+i++;
+		}
+		
+	}
+	
+	else
+	{
+		d = 2 * abs(dx) - abs(dy);
+		
+		if(dy>0)
+		{
+			c=xa;
+			r=ya;
+			f=yb;
+		}
+		else
+		{
+			c=xb;
+			r=yb;
+			f=ya;
+		}
+		
+		while(f > r)
+		{
+			if(d < 0)
+			{
+				r = r + 1;
+				d= d + 2 * abs(dx);
+			}
+			else
+			{
+				r = r + 1;
+				
+				if(dx > 0 && dy > 0 || dx < 0 && dy < 0)
+				{
+					c = c + 1;
+				}
+				else
+				{
+					c = c - 1;
+				}
+				d = d + 2 * abs(dx) - 2 * abs(dy);
+			}
+			if(i%3==0){
+			glVertex2d(c,r);
+			
+		}
+		i++;
+	
+		}
+	}
+}
+ void  house(){
+	Bline(150,150,250,150);
+	Bline(250,150,250,250);
+	Bline(150,150,150,250);
+	Bline(150,250,100,250);
+	Bline(250,250,300,250);
+	Bline(100,250,200,350);
+	Bline(300,250,200,350);
+	Bline(180,150,180,190);
+	Bline(180,190,220,190);
+	Bline(220,190,220,150);
+}
+
+void Draw()
+{
+		glClear(GL_COLOR_BUFFER_BIT);
+		glBegin(GL_POINTS);
+		//glVertex2d(200,200);
+		//Bline(xa,ya,xb,yb);
+		house();
+		glEnd();
+		glFlush();
+	
+}
+
+int main(int argc,char **argv)
+{
+		/*printf("\nEnter First Coordinate: ");
+		scanf("%d%d",&xa,&ya);
+		
+		printf("\nEnter Second Coordinate: ");
+		scanf("%d%d",&xb,&yb);*/
+
+
+		glutInit(&argc,argv);
+		glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
+		glutInitWindowPosition(0,0);
+		glutInitWindowSize(640,480);
+		glutCreateWindow("Bres Line");
+		glClearColor(1,1,1,0);
+		glColor3f(0,0,0);
+		gluOrtho2D(0,640,0,480);
+		glutDisplayFunc(Draw);
+		glutMainLoop();
+		return 0;
+}
